@@ -1,0 +1,14 @@
+{
+  "name": "game-system",
+  "version": "1.0.0",
+  "description": "Game participation backend service",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "migrate": "npx prisma migrate deploy"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "prisma": "^5.22.0"
+  }
+}

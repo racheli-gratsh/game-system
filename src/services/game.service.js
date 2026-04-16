@@ -3,45 +3,42 @@ const {
   GameNotFoundError,
   GameAlreadyStartedError,
   UserAlreadyJoinedError,
+  GameFullError, 
 } = require('../errors');
 
 /**
  * Joins a user to a game.
- *
- * Business rules:
+ * * Business rules:
  * 1. Game must exist.
  * 2. Game status must be "Waiting".
- * 3. User must not already be registered to this game.
- *
- * @param {string} userId
- * @param {string} gameId
- * @returns {Promise<GameParticipant>} The created participant record.
- * @throws {GameNotFoundError}       If game does not exist.
- * @throws {GameAlreadyStartedError} If game status is not Waiting.
- * @throws {UserAlreadyJoinedError}  If user is already registered.
+ * 3. Game must not be full (new).
+ * 4. User must not already be registered.
  */
 async function joinGame(userId, gameId) {
-  // 1. Verify game exists
+  // 1. בדיקה שהמשחק קיים
   const game = await gameRepository.findById(gameId);
   if (!game) {
     throw new GameNotFoundError(gameId);
   }
 
-  // 2. Verify game is still open
+  // 2. בדיקה שהסטטוס מאפשר הרשמה
   if (game.status !== 'Waiting') {
     throw new GameAlreadyStartedError(gameId);
   }
 
-  // 3. Verify user is not already in the game
+  // 3. בדיקת תפוסה (שימוש ב-_count שהוספנו ב-Repository)
+  if (game._count.participants >= game.maxPlayers) {
+    throw new GameFullError(gameId);
+  }
+
+  // 4. בדיקה שהמשתמש לא רשום כבר
   const existingParticipant = await gameRepository.findParticipant(userId, gameId);
   if (existingParticipant) {
     throw new UserAlreadyJoinedError(userId, gameId);
   }
 
-  // 4. Register user as Player (inside a DB transaction)
-  const participant = await gameRepository.createParticipant(userId, gameId);
-
-  return participant;
+  // 5. רישום בפועל
+  return await gameRepository.createParticipant(userId, gameId);
 }
 
 module.exports = { joinGame };

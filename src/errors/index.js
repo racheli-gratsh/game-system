@@ -25,9 +25,16 @@ class UserAlreadyJoinedError extends AppError {
   }
 }
 
+class GameFullError extends AppError {
+  constructor(gameId) {
+    super(`Game with ID "${gameId}" is full.`, 403); // קוד 403 או 409 מתאים כאן
+  }
+}
+
 module.exports = {
   AppError,
   GameNotFoundError,
   GameAlreadyStartedError,
   UserAlreadyJoinedError,
+  GameFullError,
 };

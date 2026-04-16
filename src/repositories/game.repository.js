@@ -8,9 +8,16 @@ const gameRepository = {
    * Find a game by its ID.
    * @param {string} gameId
    */
-  async findById(gameId) {
-    return prisma.game.findUnique({ where: { id: gameId } });
-  },
+ async findById(gameId) {
+  return prisma.game.findUnique({
+    where: { id: gameId },
+    include: {
+      _count: {
+        select: { participants: true } // זה מחזיר לנו שדה בשם _count עם מספר המשתתפים
+      }
+    }
+  });
+},
 
   /**
    * Find an existing participation record.
@@ -67,6 +74,15 @@ const gameRepository = {
    */
   async createGame(data) {
     return prisma.game.create({ data });
+  },
+
+  async clearAll() {
+    // שלב 1: מחיקת טבלת הקשר (Participants) כי היא תלויה בטבלאות האחרות
+    await prisma.gameParticipant.deleteMany();
+    
+    // שלב 2: מחיקת המשתמשים והמשחקים
+    await prisma.game.deleteMany();
+    await prisma.user.deleteMany();
   },
 
   /**

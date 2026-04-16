@@ -1,10 +1,5 @@
 # Game System – Node.js Backend
-           Getting Started
 
- 1. Clone the repository
-```bash
-git clone [https://github.com/racheli-gratsh/game-system.git](https://github.com/racheli-gratsh/game-system.git)
-cd game-system 
 ## Tech Stack
 - **Runtime**: Node.js 20
 - **ORM**: Prisma
